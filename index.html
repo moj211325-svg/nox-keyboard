@@ -19,7 +19,6 @@
     height: 100vh;
     padding: 6px;
     gap: 4px;
-    justify-content: space-between;
   }
   #top {
     flex-shrink: 0;
@@ -52,6 +51,10 @@
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+  .spacer {
+    flex: 1;
+    min-height: 20px;
+  }
   #keyboard {
     display: flex;
     flex-direction: column;
@@ -60,7 +63,6 @@
   }
   .row {
     display: flex;
-    flex-direction: row-reverse;
     justify-content: center;
     gap: 3px;
     height: 48px;
@@ -144,6 +146,7 @@
     <div id="output"></div>
     <div id="translation">ترجمه:</div>
   </div>
+  <div class="spacer"></div>
   <div>
     <div id="keyboard"></div>
     <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
@@ -152,14 +155,14 @@
 
 <script>
 const alphabet = [
-  {p:"ا", n:"⌁"}, {p:"ب", n:""}, {p:"پ", n:"˙"}, {p:"ت", n:""},
-  {p:"ث", n:"⊐˙"}, {p:"ج", n:"⋔"}, {p:"چ", n:"⋔˙"}, {p:"ح", n:"⊓"},
+  {p:"ا", n:""}, {p:"ب", n:""}, {p:"پ", n:"⊏˙"}, {p:"ت", n:""},
+  {p:"ث", n:"˙"}, {p:"ج", n:"⋔"}, {p:"چ", n:"˙"}, {p:"ح", n:"⊓"},
   {p:"خ", n:"⊓˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"⌟˙"}, {p:"ر", n:"⟆"},
   {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"⋏˙"},
   {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
   {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
-  {p:"ک", n:"⋉"}, {p:"گ", n:"⋉"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
-  {p:"ن", n:"⌒˙"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
+  {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
+  {p:"ن", n:"⌒"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
 ];
 const map = {};
 alphabet.forEach(k => map[k.p] = k.n);
@@ -167,7 +170,7 @@ const revMap = {};
 alphabet.forEach(k => revMap[k.n] = k.p);
 const longPressMap = {"ص":"ض","ع":"غ","ط":"ظ","ز":"ژ","د":"ذ"};
 
-const rowNumbers = ["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"];
+const rowNumbers = ["","۲","۳","۴","","۶","۷","۸","","۰"];
 const row2 = ["ص","ث","ق","ف","ع","ه","خ","ح","ج","چ"];
 const row3 = ["ش","س","ی","ب","ل","ا","ت","ن","م","پ"];
 const row4 = ["ط","ز","ر","د","و","ک","گ"];
@@ -180,13 +183,13 @@ const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
 const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
 const symRow3 = ["،",".","<",">","[","]","{","}"];
 
-const emoRow1 = ["😀","😂","😍","🤔","😢","😡","","","❤️","🔥"];
-const emoRow2 = ["🎉","✅","","⭐","🌙","✨","","🌧️","🍀",""];
-const emoRow3 = ["📱","💻","🎮","📚","✏️","🔑","🏠","⏰","🎵",""];
+const emoRow1 = ["😀","😂","😍","","😢","😡","","","❤️","🔥"];
+const emoRow2 = ["🎉","✅","","⭐","","✨","","🌧️","",""];
+const emoRow3 = ["","💻","🎮","📚","✏️","🔑","🏠","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)"];
 const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•ʔ","(¬_¬)"];
-const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᴥᵔ ʔ","¯\\(°_o)/¯"];
+const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔ ʔ","¯\\(°_o)/¯"];
 
 let lang = 0;
 let page = 0;
@@ -398,7 +401,7 @@ function buildNoxRows() {
     const vKey = v ? alphabet.find(x => x.p === v) : null;
     row4div.appendChild(makeKey(k.n, p, v, k.n, vKey ? vKey.n : null, p, v, ''));
   });
-  const bs = makeActionKey('', 'backspace', backspace);
+  const bs = makeActionKey('⌫', 'backspace', backspace);
   let bsInterval = null, bsTimeout = null;
   bs.addEventListener('touchstart', (e) => {
     e.preventDefault();
