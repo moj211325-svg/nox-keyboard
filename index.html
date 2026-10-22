@@ -33,7 +33,7 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    direction: ltr;
+    flex-shrink: 0;
   }
   #translation {
     background: #202020;
@@ -47,15 +47,14 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    direction: rtl;
-  }
-  .spacer {
-    flex: 1;
+    flex-shrink: 0;
   }
   #keyboard {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    margin-top: auto;
+    flex-shrink: 0;
   }
   .row {
     display: flex;
@@ -132,7 +131,7 @@
     color: #666;
     text-align: center;
     padding: 2px;
-    direction: rtl;
+    flex-shrink: 0;
   }
 </style>
 </head>
@@ -140,20 +139,19 @@
 <div id="app">
   <div id="output"></div>
   <div id="translation">ترجمه:</div>
-  <div class="spacer"></div>
   <div id="keyboard"></div>
   <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
 </div>
 
 <script>
 const alphabet = [
-  {p:"ا", n:"⌁"}, {p:"ب", n:"⊏"}, {p:"پ", n:"⊏˙"}, {p:"ت", n:"⊐"},
+  {p:"ا", n:"⌁"}, {p:"ب", n:""}, {p:"پ", n:"˙"}, {p:"ت", n:""},
   {p:"ث", n:"⊐˙"}, {p:"ج", n:"⋔"}, {p:"چ", n:"⋔˙"}, {p:"ح", n:"⊓"},
-  {p:"خ", n:"⊓"}, {p:"د", n:"⌟"}, {p:"ذ", n:"⌟"}, {p:"ر", n:"⟆"},
-  {p:"ز", n:"⟆"}, {p:"ژ", n:"⟆"}, {p:"س", n:"⋏"}, {p:"ش", n:"⋏"},
-  {p:"ص", n:""}, {p:"ض", n:"˙"}, {p:"ط", n:""}, {p:"ظ", n:"˙"},
+  {p:"خ", n:"⊓˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"⌟˙"}, {p:"ر", n:"⟆"},
+  {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"⋏˙"},
+  {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
   {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
-  {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
+  {p:"ک", n:"⋉"}, {p:"گ", n:"⋉"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
   {p:"ن", n:"⌒˙"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
 ];
 const map = {};
@@ -175,12 +173,12 @@ const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
 const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
 const symRow3 = ["،",".","<",">","[","]","{","}"];
 
-const emoRow1 = ["😀","😂","😍","🤔","😢","😡","👍","","❤️","🔥"];
-const emoRow2 = ["🎉","✅","❌","⭐","🌙","✨","","🌧️","🍀","☕"];
-const emoRow3 = ["","💻","🎮","","️","🔑","","⏰","🎵",""];
+const emoRow1 = ["😀","😂","😍","🤔","😢","😡","","👎","❤️",""];
+const emoRow2 = ["","✅","❌","⭐","🌙","✨","⚡","🌧️","🍀","☕"];
+const emoRow3 = ["📱","💻","","📚","✏️","","🏠","⏰","","🎶"];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","_ಠ","♥‿♥","(╯°□°)╯"];
-const gifRow2 = ["٩(◕◕)۶","←_←","→_→","•ᴥ•ʔ","(¬_¬)"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ °)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
+const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•ʔ","(¬_¬)"];
 const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔᴥᵔ ʔ","¯\\(°_o)/¯"];
 
 let lang = 0;
@@ -440,7 +438,7 @@ function buildEnRows() {
   kbEl.appendChild(r2);
   
   const r3 = document.createElement('div'); r3.className = 'row';
-  const shiftBtn = makeActionKey(caps ? '⇪' : '', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
+  const shiftBtn = makeActionKey(caps ? '⇪' : '⇧', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
   r3.appendChild(shiftBtn);
   enRow3.forEach(l => { const s = caps ? l.toUpperCase() : l; r3.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
   const bs = makeActionKey('⌫', 'backspace', backspace);
@@ -460,7 +458,7 @@ function buildSymRows() {
   });
   const r3 = document.createElement('div'); r3.className = 'row';
   symRow3.forEach(s => r3.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
-  const bs = makeActionKey('', 'backspace', backspace);
+  const bs = makeActionKey('⌫', 'backspace', backspace);
   r3.appendChild(bs);
   kbEl.appendChild(r3);
 }
