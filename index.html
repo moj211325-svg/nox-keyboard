@@ -17,19 +17,18 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding: 8px;
-    gap: 6px;
+    padding: 6px;
+    gap: 4px;
   }
   #output {
     background: #202020;
     border: 1px solid #333;
     color: #8BC34A;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 18px;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 16px;
     font-family: monospace;
-    min-height: 44px;
-    max-height: 44px;
+    height: 36px;
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
@@ -39,67 +38,70 @@
     background: #202020;
     border: 1px solid #333;
     color: #fff;
-    padding: 8px;
-    border-radius: 10px;
-    font-size: 14px;
-    min-height: 36px;
-    max-height: 36px;
+    padding: 6px;
+    border-radius: 8px;
+    font-size: 13px;
+    height: 30px;
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
   }
+  #keyboard {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+  }
   .row {
     display: flex;
     justify-content: center;
-    gap: 4px;
-    flex: 1;
-    min-height: 0;
+    gap: 3px;
+    height: 48px;
   }
   .key {
     background: #2A2A2A;
     border: 1px solid #3D3D3D;
     color: white;
-    border-radius: 8px;
+    border-radius: 6px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     flex: 1;
-    font-size: 20px;
+    font-size: 18px;
     cursor: pointer;
-    transition: background 0.1s;
     position: relative;
     overflow: hidden;
     min-width: 0;
-    padding: 8px 4px;
+    padding: 4px 2px;
   }
   .key:active, .key.pressed {
     background: #4A4A4A;
   }
   .key .nox-sym {
-    font-size: 22px;
+    font-size: 20px;
     font-family: monospace;
     line-height: 1;
   }
   .key .fa-hint {
-    font-size: 11px;
+    font-size: 10px;
     color: #B0B0B0;
     line-height: 1;
-    margin-top: 2px;
+    margin-top: 1px;
   }
   .key .long-hint {
     position: absolute;
-    top: 3px;
-    right: 4px;
-    font-size: 9px;
+    top: 2px;
+    right: 3px;
+    font-size: 8px;
     color: #9E9E9E;
   }
   .key.action {
     background: #3A3A3A;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: bold;
-    padding: 8px 4px;
+    padding: 4px 2px;
   }
   .key.action:active, .key.action.pressed {
     background: #555;
@@ -109,23 +111,23 @@
   }
   .key.backspace {
     flex: 1.5;
-    font-size: 18px;
+    font-size: 16px;
   }
   .key.sticker {
-    font-size: 11px;
-    padding: 4px;
+    font-size: 10px;
+    padding: 2px;
   }
   .key.emoji {
-    font-size: 22px;
+    font-size: 20px;
   }
   .key.symbol {
-    font-size: 18px;
+    font-size: 16px;
   }
   #footer {
-    font-size: 10px;
+    font-size: 9px;
     color: #666;
     text-align: center;
-    padding: 4px;
+    padding: 2px;
   }
 </style>
 </head>
@@ -133,20 +135,20 @@
 <div id="app">
   <div id="output"></div>
   <div id="translation">ترجمه:</div>
-  <div id="keyboard" style="flex:1;display:flex;flex-direction:column;gap:4px;"></div>
+  <div id="keyboard"></div>
   <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
 </div>
 
 <script>
 const alphabet = [
   {p:"ا", n:"⌁"}, {p:"ب", n:"⊏"}, {p:"پ", n:"⊏˙"}, {p:"ت", n:"⊐"},
-  {p:"ث", n:"⊐"}, {p:"ج", n:""}, {p:"چ", n:"⋔˙"}, {p:"ح", n:""},
-  {p:"خ", n:"˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"˙"}, {p:"ر", n:"⟆"},
-  {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"˙"},
-  {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
+  {p:"ث", n:"⊐˙"}, {p:"ج", n:"⋔"}, {p:"چ", n:"⋔˙"}, {p:"ح", n:"⊓"},
+  {p:"خ", n:"⊓"}, {p:"د", n:"⌟"}, {p:"ذ", n:"⌟"}, {p:"ر", n:"⟆"},
+  {p:"ز", n:"⟆"}, {p:"ژ", n:"⟆"}, {p:"س", n:"⋏"}, {p:"ش", n:"⋏"},
+  {p:"ص", n:""}, {p:"ض", n:"˙"}, {p:"ط", n:""}, {p:"ظ", n:"˙"},
   {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
   {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
-  {p:"ن", n:"⌒"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
+  {p:"ن", n:"⌒˙"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
 ];
 const map = {};
 alphabet.forEach(k => map[k.p] = k.n);
@@ -154,7 +156,7 @@ const revMap = {};
 alphabet.forEach(k => revMap[k.n] = k.p);
 const longPressMap = {"ص":"ض","ع":"غ","ط":"ظ","ز":"ژ","د":"ذ"};
 
-const rowNumbers = ["","۲","۳","۴","","۶","۷","۸","","۰"];
+const rowNumbers = ["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"];
 const row2 = ["ص","ث","ق","ف","ع","ه","خ","ح","ج","چ"];
 const row3 = ["ش","س","ی","ب","ل","ا","ت","ن","م","پ"];
 const row4 = ["ط","ز","ر","د","و","ک","گ"];
@@ -167,13 +169,13 @@ const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
 const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
 const symRow3 = ["،",".","<",">","[","]","{","}"];
 
-const emoRow1 = ["😀","😂","😍","","😢","😡","👍","","❤️","🔥"];
-const emoRow2 = ["🎉","✅","","⭐","🌙","️","","🌧️","🍀",""];
-const emoRow3 = ["📱","💻","","📚","✏️","🔑","🏠","⏰","🎵",""];
+const emoRow1 = ["😀","😂","😍","🤔","😢","😡","👍","","❤️","🔥"];
+const emoRow2 = ["🎉","✅","❌","⭐","🌙","✨","","🌧️","🍀","☕"];
+const emoRow3 = ["","💻","🎮","","✏️","🔑","","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
-const gifRow2 = ["٩(◕◕)۶","←_←","→_→","•ᴥ•","(¬_¬)"];
-const gifRow3 = ["（＾▽＾）","(×̯×)۶","(>_<)","ʕ ᵔ ʔ","¯\\(°_o)/¯"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","_ಠ","♥‿♥","(°□°)╯"];
+const gifRow2 = ["٩(◕◕)۶","←_←","→_→","•ᴥ•ʔ","(¬_¬)"];
+const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᴥᵔ ","¯\\(°_o)/¯"];
 
 let lang = 0;
 let page = 0;
@@ -385,7 +387,7 @@ function buildNoxRows() {
     const vKey = v ? alphabet.find(x => x.p === v) : null;
     row4div.appendChild(makeKey(k.n, p, v, k.n, vKey ? vKey.n : null, p, v, ''));
   });
-  const bs = makeActionKey('', 'backspace', backspace);
+  const bs = makeActionKey('⌫', 'backspace', backspace);
   let bsInterval = null, bsTimeout = null;
   bs.addEventListener('touchstart', (e) => {
     e.preventDefault();
@@ -432,7 +434,7 @@ function buildEnRows() {
   kbEl.appendChild(r2);
   
   const r3 = document.createElement('div'); r3.className = 'row';
-  const shiftBtn = makeActionKey(caps ? '⇪' : '⇧', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
+  const shiftBtn = makeActionKey(caps ? '⇪' : '', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
   r3.appendChild(shiftBtn);
   enRow3.forEach(l => { const s = caps ? l.toUpperCase() : l; r3.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
   const bs = makeActionKey('⌫', 'backspace', backspace);
@@ -452,7 +454,7 @@ function buildSymRows() {
   });
   const r3 = document.createElement('div'); r3.className = 'row';
   symRow3.forEach(s => r3.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
-  const bs = makeActionKey('⌫', 'backspace', backspace);
+  const bs = makeActionKey('', 'backspace', backspace);
   r3.appendChild(bs);
   kbEl.appendChild(r3);
 }
