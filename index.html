@@ -49,21 +49,18 @@
     text-overflow: ellipsis;
     flex-shrink: 0;
   }
-  .spacer {
-    height: 30px;
-    flex-shrink: 0;
-  }
   #keyboard {
     display: flex;
     flex-direction: column;
     gap: 3px;
+    margin-top: auto;
     flex-shrink: 0;
   }
   .row {
     display: flex;
     justify-content: center;
     gap: 3px;
-    height: 50px;
+    height: 52px;
   }
   .key {
     background: #2A2A2A;
@@ -142,19 +139,16 @@
 <div id="app">
   <div id="output"></div>
   <div id="translation">ترجمه:</div>
-  <div class="spacer"></div>
-  <div>
-    <div id="keyboard"></div>
-    <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
-  </div>
+  <div id="keyboard"></div>
+  <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
 </div>
 
 <script>
 const alphabet = [
   {p:"ا", n:"⌁"}, {p:"ب", n:"⊏"}, {p:"پ", n:"⊏˙"}, {p:"ت", n:"⊐"},
-  {p:"ث", n:"⊐"}, {p:"ج", n:"⋔"}, {p:"چ", n:"⋔"}, {p:"ح", n:"⊓"},
-  {p:"خ", n:"˙"}, {p:"د", n:""}, {p:"ذ", n:"˙"}, {p:"ر", n:""},
-  {p:"ز", n:"˙"}, {p:"ژ", n:"̈"}, {p:"س", n:""}, {p:"ش", n:"˙"},
+  {p:"ث", n:"⊐˙"}, {p:"ج", n:""}, {p:"چ", n:"⋔˙"}, {p:"ح", n:""},
+  {p:"خ", n:"˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"˙"}, {p:"ر", n:"⟆"},
+  {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"˙"},
   {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
   {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
   {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
@@ -166,7 +160,8 @@ const revMap = {};
 alphabet.forEach(k => revMap[k.n] = k.p);
 const longPressMap = {"ص":"ض","ع":"غ","ط":"ظ","ز":"ژ","د":"ذ"};
 
-const rowNumbers = ["۱","","۳","۴","۵","","۷","۸","۹",""];
+// اعداد کامل - همه ۱۰ تا
+const rowNumbers = ["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"];
 const row2 = ["ص","ث","ق","ف","ع","ه","خ","ح","ج","چ"];
 const row3 = ["ش","س","ی","ب","ل","ا","ت","ن","م","پ"];
 const row4 = ["ط","ز","ر","د","و","ک","گ"];
@@ -179,13 +174,13 @@ const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
 const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
 const symRow3 = ["،",".","<",">","[","]","{","}"];
 
-const emoRow1 = ["😀","😂","😍","🤔","😢","😡","👍","","❤️","🔥"];
-const emoRow2 = ["🎉","✅","❌","⭐","🌙","✨","⚡","🌧️","🍀","☕"];
-const emoRow3 = ["📱","💻","🎮","📚","️","🔑","🏠","","🎵",""];
+const emoRow1 = ["😀","😂","😍","🤔","😢","😡","","👎","❤️","🔥"];
+const emoRow2 = ["🎉","✅","❌","⭐","🌙","✨","⚡","🌧️","","☕"];
+const emoRow3 = ["📱","💻","🎮","","✏️","🔑","","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ °)","ಠ_ಠ","♥‿♥","(╯°□°)"];
-const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•ʔ","(¬_¬)"];
-const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔᴥ ʔ","¯\\(°_o)/¯"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
+const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ••ʔ","(¬_¬)"];
+const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)"," ᵔᴥᵔ ʔ","¯\\(°_o)/¯"];
 
 let lang = 0;
 let page = 0;
@@ -259,7 +254,7 @@ function makeKey(big, small, hint, typed, longTyped, barFa, barFaLong, cls) {
   
   btn.addEventListener('click', () => {
     if (longFired) { longFired = false; return; }
-    if (barFa !== undefined) addChar(typed, barFa);
+    if (barFa !== undefined && barFa !== null) addChar(typed, barFa);
     else addChar(typed, typed);
   });
   
@@ -269,7 +264,7 @@ function makeKey(big, small, hint, typed, longTyped, barFa, barFaLong, cls) {
       longFired = false;
       longTimer = setTimeout(() => {
         longFired = true;
-        if (barFaLong !== undefined) addChar(longTyped, barFaLong);
+        if (barFaLong !== undefined && barFaLong !== null) addChar(longTyped, barFaLong);
         else addChar(longTyped, longTyped);
         btn.classList.add('pressed');
       }, 400);
@@ -372,7 +367,7 @@ function buildKeyboard() {
     } catch(e) {}
   }));
   
-  actRow.appendChild(makeActionKey('', '', clearAll));
+  actRow.appendChild(makeActionKey('↵', '', clearAll));
   
   kbEl.appendChild(actRow);
 }
@@ -444,7 +439,7 @@ function buildEnRows() {
   kbEl.appendChild(r2);
   
   const r3 = document.createElement('div'); r3.className = 'row';
-  const shiftBtn = makeActionKey(caps ? '⇪' : '⇧', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
+  const shiftBtn = makeActionKey(caps ? '⇪' : '', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
   r3.appendChild(shiftBtn);
   enRow3.forEach(l => { const s = caps ? l.toUpperCase() : l; r3.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
   const bs = makeActionKey('⌫', 'backspace', backspace);
@@ -464,7 +459,7 @@ function buildSymRows() {
   });
   const r3 = document.createElement('div'); r3.className = 'row';
   symRow3.forEach(s => r3.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
-  const bs = makeActionKey('⌫', 'backspace', backspace);
+  const bs = makeActionKey('', 'backspace', backspace);
   r3.appendChild(bs);
   kbEl.appendChild(r3);
 }
