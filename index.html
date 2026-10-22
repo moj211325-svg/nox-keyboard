@@ -17,8 +17,8 @@
     display: flex;
     flex-direction: column;
     height: 100vh;
-    padding: 6px;
-    gap: 4px;
+    padding: 4px;
+    gap: 3px;
   }
   #top {
     flex-shrink: 0;
@@ -31,12 +31,12 @@
     border-radius: 8px;
     font-size: 16px;
     font-family: monospace;
-    height: 36px;
+    height: 34px;
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   #translation {
     background: #202020;
@@ -45,7 +45,7 @@
     padding: 6px;
     border-radius: 8px;
     font-size: 13px;
-    height: 30px;
+    height: 28px;
     overflow: hidden;
     text-align: center;
     white-space: nowrap;
@@ -53,7 +53,8 @@
   }
   .spacer {
     flex: 1;
-    min-height: 20px;
+    min-height: 8px;
+    max-height: 40px;
   }
   #keyboard {
     display: flex;
@@ -65,7 +66,7 @@
     display: flex;
     justify-content: center;
     gap: 3px;
-    height: 48px;
+    height: 52px;
   }
   .key {
     background: #2A2A2A;
@@ -187,7 +188,7 @@ const emoRow1 = ["😀","😂","😍","","😢","😡","","","❤️","🔥"];
 const emoRow2 = ["🎉","✅","","⭐","","✨","","🌧️","",""];
 const emoRow3 = ["","💻","🎮","📚","✏️","🔑","🏠","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","_ಠ","♥‿♥","(╯°□°)"];
 const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•ʔ","(¬_¬)"];
 const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔ ʔ","¯\\(°_o)/¯"];
 
@@ -448,7 +449,7 @@ function buildEnRows() {
   kbEl.appendChild(r2);
   
   const r3 = document.createElement('div'); r3.className = 'row';
-  const shiftBtn = makeActionKey(caps ? '⇪' : '⇧', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
+  const shiftBtn = makeActionKey(caps ? '⇪' : '', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
   r3.appendChild(shiftBtn);
   enRow3.forEach(l => { const s = caps ? l.toUpperCase() : l; r3.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
   const bs = makeActionKey('⌫', 'backspace', backspace);
@@ -468,7 +469,7 @@ function buildSymRows() {
   });
   const r3 = document.createElement('div'); r3.className = 'row';
   symRow3.forEach(s => r3.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
-  const bs = makeActionKey('⌫', 'backspace', backspace);
+  const bs = makeActionKey('', 'backspace', backspace);
   r3.appendChild(bs);
   kbEl.appendChild(r3);
 }
