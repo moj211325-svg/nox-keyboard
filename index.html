@@ -19,6 +19,10 @@
     height: 100vh;
     padding: 6px;
     gap: 4px;
+    justify-content: space-between;
+  }
+  #top {
+    flex-shrink: 0;
   }
   #output {
     background: #202020;
@@ -33,7 +37,7 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    flex-shrink: 0;
+    margin-bottom: 4px;
   }
   #translation {
     background: #202020;
@@ -47,17 +51,16 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
-    flex-shrink: 0;
   }
   #keyboard {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    margin-top: auto;
     flex-shrink: 0;
   }
   .row {
     display: flex;
+    flex-direction: row-reverse;
     justify-content: center;
     gap: 3px;
     height: 48px;
@@ -96,7 +99,7 @@
   .key .long-hint {
     position: absolute;
     top: 2px;
-    left: 3px;
+    right: 3px;
     font-size: 8px;
     color: #9E9E9E;
   }
@@ -137,10 +140,14 @@
 </head>
 <body>
 <div id="app">
-  <div id="output"></div>
-  <div id="translation">ترجمه:</div>
-  <div id="keyboard"></div>
-  <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
+  <div id="top">
+    <div id="output"></div>
+    <div id="translation">ترجمه:</div>
+  </div>
+  <div>
+    <div id="keyboard"></div>
+    <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
+  </div>
 </div>
 
 <script>
@@ -173,13 +180,13 @@ const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
 const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
 const symRow3 = ["،",".","<",">","[","]","{","}"];
 
-const emoRow1 = ["😀","😂","😍","🤔","😢","😡","","👎","❤️",""];
-const emoRow2 = ["","✅","❌","⭐","🌙","✨","⚡","🌧️","🍀","☕"];
-const emoRow3 = ["📱","💻","","📚","✏️","","🏠","⏰","","🎶"];
+const emoRow1 = ["😀","😂","😍","🤔","😢","😡","","","❤️","🔥"];
+const emoRow2 = ["🎉","✅","","⭐","🌙","✨","","🌧️","🍀",""];
+const emoRow3 = ["📱","💻","🎮","📚","✏️","🔑","🏠","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ °)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
 const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•ʔ","(¬_¬)"];
-const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔᴥᵔ ʔ","¯\\(°_o)/¯"];
+const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᴥᵔ ʔ","¯\\(°_o)/¯"];
 
 let lang = 0;
 let page = 0;
