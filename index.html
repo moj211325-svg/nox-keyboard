@@ -1,125 +1,575 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>کیبورد NOX</title>
-    <style>
-        body { background: #1A1A1A; color: white; font-family: monospace; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 100vh; }
-        #output { background: #202020; border: 1px solid #333; color: #8BC34A; padding: 10px; border-radius: 8px; font-size: 18px; min-height: 60px; margin-bottom: 5px; text-align: center; }
-        #translation { background: #202020; border: 1px solid #333; color: #fff; padding: 10px; border-radius: 8px; font-size: 14px; min-height: 40px; margin-bottom: 15px; text-align: center; }
-        .row { display: flex; justify-content: center; margin-bottom: 4px; }
-        .key { background: #2A2A2A; border: 1px solid #3D3D3D; color: white; border-radius: 8px; margin: 2px; padding: 12px 0; text-align: center; flex: 1; font-size: 20px; user-select: none; -webkit-tap-highlight-color: transparent; }
-        .key:active { background: #4A4A4A; }
-        .key-small { font-size: 12px; color: #B0B0B0; display: block; margin-top: 2px; }
-        .action-key { background: #3A3A3A; font-size: 14px; font-weight: bold; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>NOX Keyboard</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body {
+    background: #1A1A1A;
+    color: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    direction: ltr;
+  }
+  #app {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 8px;
+    gap: 6px;
+  }
+  #output {
+    background: #202020;
+    border: 1px solid #333;
+    color: #8BC34A;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-family: monospace;
+    min-height: 44px;
+    max-height: 44px;
+    overflow: hidden;
+    text-align: center;
+    direction: ltr;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  #translation {
+    background: #202020;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 8px;
+    border-radius: 10px;
+    font-size: 14px;
+    min-height: 36px;
+    max-height: 36px;
+    overflow: hidden;
+    text-align: center;
+    direction: rtl;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+    min-height: 0;
+  }
+  .key {
+    background: #2A2A2A;
+    border: 1px solid #3D3D3D;
+    color: white;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    font-size: 20px;
+    cursor: pointer;
+    transition: background 0.1s;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+  }
+  .key:active, .key.pressed {
+    background: #4A4A4A;
+  }
+  .key .nox-sym {
+    font-size: 20px;
+    font-family: monospace;
+    line-height: 1;
+  }
+  .key .fa-hint {
+    font-size: 10px;
+    color: #B0B0B0;
+    line-height: 1;
+    margin-top: 2px;
+  }
+  .key .long-hint {
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    font-size: 9px;
+    color: #9E9E9E;
+  }
+  .key.action {
+    background: #3A3A3A;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  .key.action:active, .key.action.pressed {
+    background: #555;
+  }
+  .key.space {
+    flex: 2.5;
+  }
+  .key.backspace {
+    flex: 1.5;
+    font-size: 18px;
+  }
+  .key.sticker {
+    font-size: 11px;
+    padding: 4px;
+  }
+  .key.emoji {
+    font-size: 22px;
+  }
+  .key.symbol {
+    font-size: 18px;
+  }
+  .key.shift-active {
+    background: #5A5A5A;
+  }
+  #footer {
+    font-size: 10px;
+    color: #666;
+    text-align: center;
+    padding: 4px;
+    direction: rtl;
+  }
+</style>
 </head>
 <body>
-    <div id="output"></div>
-    <div id="translation">ترجمه:</div>
-    <div id="keyboard"></div>
+<div id="app">
+  <div id="output"></div>
+  <div id="translation">ترجمه:</div>
+  <div id="keyboard" style="flex:1;display:flex;flex-direction:column;gap:4px;"></div>
+  <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
+</div>
 
-    <script>
-        const alphabet = [
-            {p:"ا", n:"⌁"}, {p:"ب", n:"⊏"}, {p:"پ", n:"⊏˙"}, {p:"ت", n:"⊐"},
-            {p:"ث", n:"⊐˙"}, {p:"ج", n:"⋔"}, {p:"چ", n:"⋔˙"}, {p:"ح", n:"⊓"},
-            {p:"خ", n:"⊓˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"⌟˙"}, {p:"ر", n:"⟆"},
-            {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"⋏˙"},
-            {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
-            {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
-            {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
-            {p:"ن", n:"⌒˙"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
-        ];
-        const map = {};
-        alphabet.forEach(k => map[k.p] = k.n);
-        const revMap = {};
-        alphabet.forEach(k => revMap[k.n] = k.p);
+<script>
+const alphabet = [
+  {p:"ا", n:"⌁"}, {p:"ب", n:"⊏"}, {p:"پ", n:"⊏˙"}, {p:"ت", n:"⊐"},
+  {p:"ث", n:"⊐˙"}, {p:"ج", n:""}, {p:"چ", n:"⋔˙"}, {p:"ح", n:""},
+  {p:"خ", n:"˙"}, {p:"د", n:"⌟"}, {p:"ذ", n:"˙"}, {p:"ر", n:"⟆"},
+  {p:"ز", n:"⟆˙"}, {p:"ژ", n:"⟆̈"}, {p:"س", n:"⋏"}, {p:"ش", n:"˙"},
+  {p:"ص", n:"⊔"}, {p:"ض", n:"⊔˙"}, {p:"ط", n:"⊙"}, {p:"ظ", n:"⊙˙"},
+  {p:"ع", n:"⋎"}, {p:"غ", n:"⋎˙"}, {p:"ف", n:"⋒"}, {p:"ق", n:"⋒˙"},
+  {p:"ک", n:"⋉"}, {p:"گ", n:"⋉˙"}, {p:"ل", n:"⌜"}, {p:"م", n:"⌒"},
+  {p:"ن", n:"⌒"}, {p:"و", n:"∪"}, {p:"ه", n:"∩"}, {p:"ی", n:"⋊"}
+];
+const map = {};
+alphabet.forEach(k => map[k.p] = k.n);
+const revMap = {};
+alphabet.forEach(k => revMap[k.n] = k.p);
+const longPressMap = {"ص":"ض","ع":"غ","ط":"ظ","ز":"ژ","د":"ذ"};
 
-        let noxText = "";
-        let faText = "";
+const rowNumbers = ["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"];
+const row2 = ["ص","ث","ق","ف","ع","ه","خ","ح","ج","چ"];
+const row3 = ["ش","س","ی","ب","ل","ا","ت","ن","م","پ"];
+const row4 = ["ط","ز","ر","د","و","ک","گ"];
 
-        function update() {
-            document.getElementById('output').innerText = noxText || " ";
-            document.getElementById('translation').innerText = faText ? "ترجمه: " + faText : "ترجمه:";
+const enRow1 = ["q","w","e","r","t","y","u","i","o","p"];
+const enRow2 = ["a","s","d","f","g","h","j","k","l"];
+const enRow3 = ["z","x","c","v","b","n","m"];
+
+const symRow1 = ["!","؟","@","#","$","%","&","*","(",")"];
+const symRow2 = ["-","+","=","/","\\","|",":","؛","«","»"];
+const symRow3 = ["،",".","<",">","[","]","{","}"];
+
+const emoRow1 = ["😀","😂","😍","","😢","😡","👍","👎","❤️","🔥"];
+const emoRow2 = ["🎉","✅","❌","⭐","🌙","️","⚡","🌧️","🍀","☕"];
+const emoRow3 = ["📱","💻","","📚","✏️","🔑","🏠","⏰","🎵",""];
+
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","ಠ_ಠ","♥‿♥","(╯°□°)╯"];
+const gifRow2 = ["٩(◕◕)۶","←_←","→_→","ʕ•ᴥ•","(¬_¬)"];
+const gifRow3 = ["（＾▽＾）","(×̯×)۶","(>_<)","ʕ ᵔᵔ ʔ","¯\\(°_o)/¯"];
+
+let lang = 0; // 0=NOX, 1=FA, 2=EN
+let page = 0; // 0=letters, 1=sym, 2=emoji, 3=gif
+let caps = false;
+let noxText = "";
+let faText = "";
+
+const outputEl = document.getElementById('output');
+const transEl = document.getElementById('translation');
+const kbEl = document.getElementById('keyboard');
+
+function update() {
+  outputEl.textContent = noxText || "";
+  transEl.textContent = faText ? "ترجمه: " + faText : "ترجمه:";
+}
+
+function addChar(nox, fa) {
+  noxText += nox;
+  faText += fa;
+  update();
+  playClick();
+  vibrate();
+}
+
+function backspace() {
+  noxText = noxText.slice(0, -1);
+  faText = faText.slice(0, -1);
+  update();
+  playClick();
+  vibrate();
+}
+
+function clearAll() {
+  noxText = "";
+  faText = "";
+  update();
+  playClick();
+  vibrate();
+}
+
+function playClick() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.value = 800;
+    gain.gain.value = 0.05;
+    osc.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+    osc.stop(ctx.currentTime + 0.05);
+  } catch(e) {}
+}
+
+function vibrate() {
+  if (navigator.vibrate) navigator.vibrate(10);
+}
+
+function makeKey(big, small, hint, typed, longTyped, barFa, barFaLong, cls) {
+  const btn = document.createElement('div');
+  btn.className = 'key ' + (cls || '');
+  let html = '';
+  if (hint) html += '<span class="long-hint">' + hint + '</span>';
+  html += '<span class="nox-sym">' + big + '</span>';
+  if (small) html += '<span class="fa-hint">' + small + '</span>';
+  btn.innerHTML = html;
+  
+  let longTimer = null;
+  let longFired = false;
+  
+  btn.addEventListener('click', () => {
+    if (longFired) { longFired = false; return; }
+    if (barFa !== undefined) addChar(typed, barFa);
+    else addChar(typed, typed);
+  });
+  
+  if (longTyped) {
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      longFired = false;
+      longTimer = setTimeout(() => {
+        longFired = true;
+        if (barFaLong !== undefined) addChar(longTyped, barFaLong);
+        else addChar(longTyped, longTyped);
+        btn.classList.add('pressed');
+      }, 400);
+    });
+    btn.addEventListener('touchend', () => {
+      clearTimeout(longTimer);
+      btn.classList.remove('pressed');
+    });
+    btn.addEventListener('touchcancel', () => {
+      clearTimeout(longTimer);
+      btn.classList.remove('pressed');
+    });
+  }
+  return btn;
+}
+
+function makeActionKey(label, cls, onClick, onLongClick) {
+  const btn = document.createElement('div');
+  btn.className = 'key action ' + (cls || '');
+  btn.textContent = label;
+  let longTimer = null;
+  let longFired = false;
+  btn.addEventListener('click', () => {
+    if (longFired) { longFired = false; return; }
+    onClick();
+  });
+  if (onLongClick) {
+    btn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      longFired = false;
+      longTimer = setTimeout(() => {
+        longFired = true;
+        onLongClick();
+        btn.classList.add('pressed');
+      }, 400);
+    });
+    btn.addEventListener('touchend', () => { clearTimeout(longTimer); btn.classList.remove('pressed'); });
+    btn.addEventListener('touchcancel', () => { clearTimeout(longTimer); btn.classList.remove('pressed'); });
+  }
+  return btn;
+}
+
+function buildKeyboard() {
+  kbEl.innerHTML = '';
+  
+  // Numbers row
+  const numRow = document.createElement('div');
+  numRow.className = 'row';
+  rowNumbers.forEach(n => {
+    const btn = makeKey(n, n, null, n, null, n, n, '');
+    numRow.appendChild(btn);
+  });
+  kbEl.appendChild(numRow);
+  
+  // Letter rows
+  if (page === 1) {
+    buildSymRows();
+  } else if (page === 2) {
+    buildEmojiRows();
+  } else if (page === 3) {
+    buildGifRows();
+  } else if (lang === 0) {
+    buildNoxRows();
+  } else if (lang === 1) {
+    buildFaRows();
+  } else {
+    buildEnRows();
+  }
+  
+  // Action row
+  const actRow = document.createElement('div');
+  actRow.className = 'row';
+  
+  const pageLabel = page === 0 ? '!#1' : page === 1 ? '😊' : page === 2 ? 'گیف' : 'حروف';
+  actRow.appendChild(makeActionKey(pageLabel, '', () => {
+    page = (page + 1) % 4;
+    buildKeyboard();
+  }));
+  
+  actRow.appendChild(makeActionKey('کپی', '', () => {
+    navigator.clipboard.writeText(noxText).then(() => {
+      const old = transEl.textContent;
+      transEl.textContent = '✓ کپی شد';
+      setTimeout(() => transEl.textContent = old, 800);
+    });
+  }));
+  
+  actRow.appendChild(makeActionKey('،', '', () => addChar('،', '،')));
+  
+  const spaceLabel = lang === 0 ? 'NOX' : lang === 1 ? 'فارسی' : 'EN';
+  const spaceBtn = makeActionKey(spaceLabel, 'space', () => addChar(' ', ' '), () => {
+    addChar('‌', '‌');
+  });
+  actRow.appendChild(spaceBtn);
+  
+  actRow.appendChild(makeActionKey('.', '', () => addChar('.', '.')));
+  
+  actRow.appendChild(makeActionKey('پیست', '', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      for (let ch of text) {
+        if (revMap[ch]) {
+          noxText += ch;
+          faText += revMap[ch];
+        } else {
+          noxText += ch;
+          faText += ch;
         }
+      }
+      update();
+      vibrate();
+    } catch(e) {}
+  }));
+  
+  actRow.appendChild(makeActionKey('↵', '', clearAll));
+  
+  kbEl.appendChild(actRow);
+}
 
-        function addChar(nox, fa) {
-            noxText += nox;
-            faText += fa;
-            update();
-        }
+function buildNoxRows() {
+  [row2, row3].forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'row';
+    row.forEach(p => {
+      const k = alphabet.find(x => x.p === p);
+      const v = longPressMap[p];
+      const vKey = v ? alphabet.find(x => x.p === v) : null;
+      div.appendChild(makeKey(k.n, p, v, k.n, vKey ? vKey.n : null, p, v, ''));
+    });
+    kbEl.appendChild(div);
+  });
+  const row4div = document.createElement('div');
+  row4div.className = 'row';
+  row4.forEach(p => {
+    const k = alphabet.find(x => x.p === p);
+    const v = longPressMap[p];
+    const vKey = v ? alphabet.find(x => x.p === v) : null;
+    row4div.appendChild(makeKey(k.n, p, v, k.n, vKey ? vKey.n : null, p, v, ''));
+  });
+  const bs = makeActionKey('', 'backspace', backspace);
+  // Long press backspace for fast delete
+  let bsInterval = null;
+  let bsTimeout = null;
+  bs.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    bsTimeout = setTimeout(() => {
+      bsInterval = setInterval(backspace, 60);
+    }, 400);
+  });
+  bs.addEventListener('touchend', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  bs.addEventListener('touchcancel', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  row4div.appendChild(bs);
+  kbEl.appendChild(row4div);
+}
 
-        function backspace() {
-            noxText = noxText.slice(0, -1);
-            faText = faText.slice(0, -1);
-            update();
-        }
+function buildFaRows() {
+  [row2, row3].forEach(row => {
+    const div = document.createElement('div');
+    div.className = 'row';
+    row.forEach(p => {
+      const v = longPressMap[p];
+      div.appendChild(makeKey(p, '', v, p, v, null, null, ''));
+    });
+    kbEl.appendChild(div);
+  });
+  const row4div = document.createElement('div');
+  row4div.className = 'row';
+  row4.forEach(p => {
+    const v = longPressMap[p];
+    row4div.appendChild(makeKey(p, '', v, p, v, null, null, ''));
+  });
+  const bs = makeActionKey('⌫', 'backspace', backspace);
+  let bsInterval = null, bsTimeout = null;
+  bs.addEventListener('touchstart', (e) => { e.preventDefault(); bsTimeout = setTimeout(() => { bsInterval = setInterval(backspace, 60); }, 400); });
+  bs.addEventListener('touchend', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  bs.addEventListener('touchcancel', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  row4div.appendChild(bs);
+  kbEl.appendChild(row4div);
+}
 
-        function clearAll() {
-            noxText = "";
-            faText = "";
-            update();
-        }
+function buildEnRows() {
+  const r1 = document.createElement('div'); r1.className = 'row';
+  enRow1.forEach(l => { const s = caps ? l.toUpperCase() : l; r1.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
+  kbEl.appendChild(r1);
+  
+  const r2 = document.createElement('div'); r2.className = 'row';
+  enRow2.forEach(l => { const s = caps ? l.toUpperCase() : l; r2.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
+  kbEl.appendChild(r2);
+  
+  const r3 = document.createElement('div'); r3.className = 'row';
+  const shiftBtn = makeActionKey(caps ? '⇪' : '⇧', caps ? 'shift-active' : '', () => { caps = !caps; buildKeyboard(); });
+  r3.appendChild(shiftBtn);
+  enRow3.forEach(l => { const s = caps ? l.toUpperCase() : l; r3.appendChild(makeKey(s, '', null, s, null, null, null, '')); });
+  const bs = makeActionKey('⌫', 'backspace', backspace);
+  let bsInterval = null, bsTimeout = null;
+  bs.addEventListener('touchstart', (e) => { e.preventDefault(); bsTimeout = setTimeout(() => { bsInterval = setInterval(backspace, 60); }, 400); });
+  bs.addEventListener('touchend', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  bs.addEventListener('touchcancel', () => { clearTimeout(bsTimeout); clearInterval(bsInterval); });
+  r3.appendChild(bs);
+  kbEl.appendChild(r3);
+}
 
-        const rows = [
-            ["۱","۲","۳","۴","۵","۶","۷","۸","۹","۰"],
-            ["ص","ث","ق","ف","ع","ه","خ","ح","ج","چ"],
-            ["ش","س","ی","ب","ل","ا","ت","ن","م","پ"],
-            ["ط","ز","ر","د","و","ک","گ","⌫"]
-        ];
+function buildSymRows() {
+  [symRow1, symRow2].forEach(row => {
+    const div = document.createElement('div'); div.className = 'row';
+    row.forEach(s => div.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
+    kbEl.appendChild(div);
+  });
+  const r3 = document.createElement('div'); r3.className = 'row';
+  symRow3.forEach(s => r3.appendChild(makeKey(s, '', null, s, null, s, s, 'symbol')));
+  const bs = makeActionKey('⌫', 'backspace', backspace);
+  r3.appendChild(bs);
+  kbEl.appendChild(r3);
+}
 
-        const kb = document.getElementById('keyboard');
-        rows.forEach(row => {
-            const div = document.createElement('div');
-            div.className = 'row';
-            row.forEach(key => {
-                const btn = document.createElement('div');
-                btn.className = key === "⌫" ? "key action-key" : "key";
-                if (key === "⌫") {
-                    btn.innerText = "⌫";
-                    btn.onclick = backspace;
-                } else {
-                    const nox = map[key] || key;
-                    btn.innerHTML = `${nox}<span class="key-small">${key}</span>`;
-                    btn.onclick = () => addChar(nox, key);
-                }
-                div.appendChild(btn);
-            });
-            kb.appendChild(div);
-        });
+function buildEmojiRows() {
+  [emoRow1, emoRow2, emoRow3].forEach(row => {
+    const div = document.createElement('div'); div.className = 'row';
+    row.forEach(e => { if (e) div.appendChild(makeKey(e, '', null, e, null, e, e, 'emoji')); });
+    kbEl.appendChild(div);
+  });
+}
 
-        const actionRow = document.createElement('div');
-        actionRow.className = 'row';
-        ["کپی", "Space", "پیست", "↵"].forEach(action => {
-            const btn = document.createElement('div');
-            btn.className = "key action-key";
-            btn.style.flex = action === "Space" ? "2" : "1";
-            btn.innerText = action;
-            btn.onclick = () => {
-                if (action === "Space") addChar(" ", " ");
-                else if (action === "↵") clearAll();
-                else if (action === "کپی") {
-                    navigator.clipboard.writeText(noxText);
-                    alert("کپی شد!");
-                } else if (action === "پیست") {
-                    navigator.clipboard.readText().then(text => {
-                        for (let char of text) {
-                            if (revMap[char]) {
-                                noxText += char;
-                                faText += revMap[char];
-                            } else {
-                                noxText += char;
-                                faText += char;
-                            }
-                        }
-                        update();
-                    });
-                }
-            };
-            actionRow.appendChild(btn);
-        });
-        kb.appendChild(actionRow);
-    </script>
+function buildGifRows() {
+  [gifRow1, gifRow2, gifRow3].forEach(row => {
+    const div = document.createElement('div'); div.className = 'row';
+    row.forEach(s => div.appendChild(makeKey(s, '', null, s, null, s, s, 'sticker')));
+    kbEl.appendChild(div);
+  });
+}
+
+// Language switcher: long press on page button when on letters page
+// Actually let's add a separate lang button. Replace page button logic:
+// We'll add lang switching by long-pressing the space button when NOT on letters page? 
+// Simpler: add a small lang indicator. Let's modify: long press on the page label button cycles lang only when page===0.
+
+// Override page button in buildKeyboard - already done. Let me add lang switch:
+// Actually let's add a dedicated small button. Rebuild action row with lang button.
+
+// Rebuild with lang button - replace the pageLabel button creation:
+const origBuild = buildKeyboard;
+buildKeyboard = function() {
+  kbEl.innerHTML = '';
+  
+  const numRow = document.createElement('div');
+  numRow.className = 'row';
+  rowNumbers.forEach(n => numRow.appendChild(makeKey(n, n, null, n, null, n, n, '')));
+  kbEl.appendChild(numRow);
+  
+  if (page === 1) buildSymRows();
+  else if (page === 2) buildEmojiRows();
+  else if (page === 3) buildGifRows();
+  else if (lang === 0) buildNoxRows();
+  else if (lang === 1) buildFaRows();
+  else buildEnRows();
+  
+  const actRow = document.createElement('div');
+  actRow.className = 'row';
+  
+  const langLabel = lang === 0 ? 'NOX' : lang === 1 ? 'فا' : 'EN';
+  actRow.appendChild(makeActionKey(langLabel, '', () => {
+    lang = (lang + 1) % 3;
+    if (lang !== 0) page = 0;
+    buildKeyboard();
+  }));
+  
+  const pageLabel = page === 0 ? '!#1' : page === 1 ? '😊' : page === 2 ? 'گیف' : 'حروف';
+  actRow.appendChild(makeActionKey(pageLabel, '', () => {
+    page = (page + 1) % 4;
+    if (page !== 0 && lang !== 0) lang = 0;
+    buildKeyboard();
+  }));
+  
+  actRow.appendChild(makeActionKey('کپی', '', () => {
+    navigator.clipboard.writeText(noxText).then(() => {
+      const old = transEl.textContent;
+      transEl.textContent = '✓ کپی شد';
+      setTimeout(() => transEl.textContent = old, 800);
+    });
+  }));
+  
+  actRow.appendChild(makeActionKey('،', '', () => addChar('،', '،')));
+  
+  const spaceLabel = lang === 0 ? 'NOX' : lang === 1 ? 'فارسی' : 'EN';
+  const spaceBtn = makeActionKey(spaceLabel, 'space', () => addChar(' ', ' '), () => addChar('‌', '‌'));
+  actRow.appendChild(spaceBtn);
+  
+  actRow.appendChild(makeActionKey('.', '', () => addChar('.', '.')));
+  
+  actRow.appendChild(makeActionKey('پیست', '', async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      for (let ch of text) {
+        if (revMap[ch]) { noxText += ch; faText += revMap[ch]; }
+        else { noxText += ch; faText += ch; }
+      }
+      update();
+      vibrate();
+    } catch(e) {}
+  }));
+  
+  actRow.appendChild(makeActionKey('↵', '', clearAll));
+  kbEl.appendChild(actRow);
+};
+
+buildKeyboard();
+update();
+</script>
 </body>
 </html>
