@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fa" dir="rtl">
+<html lang="fa">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -33,6 +33,7 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
+    direction: ltr;
   }
   #translation {
     background: #202020;
@@ -46,12 +47,15 @@
     text-align: center;
     white-space: nowrap;
     text-overflow: ellipsis;
+    direction: rtl;
+  }
+  .spacer {
+    flex: 1;
   }
   #keyboard {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    flex: 1;
   }
   .row {
     display: flex;
@@ -93,7 +97,7 @@
   .key .long-hint {
     position: absolute;
     top: 2px;
-    right: 3px;
+    left: 3px;
     font-size: 8px;
     color: #9E9E9E;
   }
@@ -128,6 +132,7 @@
     color: #666;
     text-align: center;
     padding: 2px;
+    direction: rtl;
   }
 </style>
 </head>
@@ -135,6 +140,7 @@
 <div id="app">
   <div id="output"></div>
   <div id="translation">ترجمه:</div>
+  <div class="spacer"></div>
   <div id="keyboard"></div>
   <div id="footer">طراحی و توسعه: moj | نسخه 1.0 (NX-01)</div>
 </div>
@@ -171,11 +177,11 @@ const symRow3 = ["،",".","<",">","[","]","{","}"];
 
 const emoRow1 = ["😀","😂","😍","🤔","😢","😡","👍","","❤️","🔥"];
 const emoRow2 = ["🎉","✅","❌","⭐","🌙","✨","","🌧️","🍀","☕"];
-const emoRow3 = ["","💻","🎮","","✏️","🔑","","⏰","🎵",""];
+const emoRow3 = ["","💻","🎮","","️","🔑","","⏰","🎵",""];
 
-const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","_ಠ","♥‿♥","(°□°)╯"];
+const gifRow1 = ["¯\\_(ツ)_/¯","( ͡° ͜ʖ ͡°)","_ಠ","♥‿♥","(╯°□°)╯"];
 const gifRow2 = ["٩(◕◕)۶","←_←","→_→","•ᴥ•ʔ","(¬_¬)"];
-const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᴥᵔ ","¯\\(°_o)/¯"];
+const gifRow3 = ["（＾▽＾）","(×̯×)","(>_<)","ʕ ᵔᴥᵔ ʔ","¯\\(°_o)/¯"];
 
 let lang = 0;
 let page = 0;
@@ -387,7 +393,7 @@ function buildNoxRows() {
     const vKey = v ? alphabet.find(x => x.p === v) : null;
     row4div.appendChild(makeKey(k.n, p, v, k.n, vKey ? vKey.n : null, p, v, ''));
   });
-  const bs = makeActionKey('⌫', 'backspace', backspace);
+  const bs = makeActionKey('', 'backspace', backspace);
   let bsInterval = null, bsTimeout = null;
   bs.addEventListener('touchstart', (e) => {
     e.preventDefault();
